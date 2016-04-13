@@ -21,7 +21,7 @@ function typescriptTask(opts) {
           target: ts.ScriptTarget.ES6,
           jsx: ts.JsxEmit.Preserve
         },
-        fileName: event.sourcePath
+        fileName: event.projectPath
       }
     )
 
@@ -43,7 +43,7 @@ function adaptEvent(compiler) {
       return event
     }
 
-    return compiler(_.pick(event, 'type', 'data', 'path', 'projectPath', 'sourcePath')).then(result => {
+    return compiler(_.pick(event, 'type', 'data', 'path', 'projectPath')).then(result => {
       event.data = result.data
 
       if (result.sourceMap) {

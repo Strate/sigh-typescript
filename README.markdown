@@ -1,8 +1,10 @@
+# WIP, DO NOT USE IN PRODUCTION
+
 # sigh-typescript
 
 [![build status](https://circleci.com/gh/Strate/sigh-typescript.png)](https://circleci.com/gh/Strate/sigh-typescript)
 
-Sigh plugin for...
+Sigh plugin for typescript transpiling
 
 ## Example
 
