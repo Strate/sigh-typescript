@@ -9,31 +9,55 @@ function typescriptTask(opts) {
   // `require` to include any modules you need, for further info see
   // https://github.com/ohjames/process-pool
   var log = require('sigh-core').log
+  var ts = require('typescript');
 
   // this task runs inside the subprocess to transform each event
   return event => {
-    var data, sourceMap
-    // TODO: data = compile(event.data) etc.
+    var res = ts.transpileModule(
+      event.data,
+      {
+        compilerOptions: {
+          module: ts.ModuleKind.ES6,
+          target: ts.ScriptTarget.ES6,
+          jsx: ts.JsxEmit.Preserve
+        },
+        fileName: event.sourcePath
+      }
+    )
 
-    return { data, sourceMap }
+    return {
+      data: res.outputText,
+      sourceMap: res.sourceMapText
+    }
   }
 }
 
 function adaptEvent(compiler) {
   // data sent to/received from the subprocess has to be serialised/deserialised
   return event => {
-    if (event.type !== 'add' && event.type !== 'change')
+    if (event.type !== 'add' && event.type !== 'change') {
       return event
+    }
 
-    // if (event.fileType !== 'relevantType') return event
+    if (event.fileType !== 'ts' && event.fileType !== 'tsx') {
+      return event
+    }
 
-    return compiler(_.pick(event, 'type', 'data', 'path', 'projectPath')).then(result => {
+    return compiler(_.pick(event, 'type', 'data', 'path', 'projectPath', 'sourcePath')).then(result => {
       event.data = result.data
 
-      if (result.sourceMap)
+      if (result.sourceMap) {
         event.applySourceMap(JSON.parse(result.sourceMap))
+      }
 
-      // event.changeFileSuffix('newSuffix')
+      if (event.fileType === 'ts') {
+        event.changeFileSuffix('js')
+      }
+
+      if (event.fileType === 'tsx') {
+        event.changeFileSuffix('jsx')
+      }
+
       return event
     })
   }
