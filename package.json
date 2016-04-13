@@ -1,0 +1,40 @@
+{
+  "name": "sigh-typescript",
+  "version": "0.0.1",
+  "description": "sigh plugin for typescript.",
+  "scripts": {
+    "test": "sigh"
+  },
+  "main": "lib/index",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Strate/sigh-typescript.git"
+  },
+  "keywords": [
+    "build",
+    "assets",
+    "pipeline",
+    "sigh-plugin"
+  ],
+  "author": "Strate",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Strate/sigh-typescript/issues"
+  },
+  "dependencies": {
+    "bluebird": "^3.3.5",
+    "lodash": "^4.10.0",
+    "sigh-core": "^0.11.8"
+  },
+  "devDependencies": {
+    "babel": ">=5 <6",
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "process-pool": "^0.3.4",
+    "sigh": "^0.12.22",
+    "sigh-babel": "^0.11.7",
+    "sigh-cli": "^0.2.8",
+    "sigh-mocha": "^0.1.2",
+    "source-map-support": "^0.4.0"
+  }
+}
