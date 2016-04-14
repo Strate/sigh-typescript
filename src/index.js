@@ -10,6 +10,7 @@ function typescriptTask(opts) {
   // https://github.com/ohjames/process-pool
   var log = require('sigh-core').log
   var ts = require('typescript');
+  let {basename} = require('path')
 
   // this task runs inside the subprocess to transform each event
   return event => {
@@ -17,17 +18,21 @@ function typescriptTask(opts) {
       event.data,
       {
         compilerOptions: {
+          sourceMap: true,
           module: ts.ModuleKind.ES6,
           target: ts.ScriptTarget.ES6,
           jsx: ts.JsxEmit.Preserve
         },
-        fileName: event.projectPath
+        fileName: basename(event.path)
       }
     )
 
+    var map = JSON.parse(res.sourceMapText)
+    map.sources = [event.sourcePath]
+
     return {
       data: res.outputText,
-      sourceMap: res.sourceMapText
+      sourceMap: map
     }
   }
 }
@@ -43,11 +48,11 @@ function adaptEvent(compiler) {
       return event
     }
 
-    return compiler(_.pick(event, 'type', 'data', 'path', 'projectPath')).then(result => {
-      event.data = result.data
+    return compiler(_.pick(event, 'type', 'data', 'path', 'projectPath', 'basePath', 'sourcePath')).then(({data, sourceMap}) => {
+      event.data = data
 
-      if (result.sourceMap) {
-        event.applySourceMap(JSON.parse(result.sourceMap))
+      if (sourceMap) {
+        event.applySourceMap(sourceMap)
       }
 
       if (event.fileType === 'ts') {
@@ -67,7 +72,7 @@ var pooledProc
 
 export default function(op, opts = {}) {
   if (! pooledProc)
-    pooledProc = op.procPool.prepare(typescriptTask, opts, { module })
+    pooledProc = op.procPool.prepare(typescriptTask, Object.assign({cwd: process.cwd()}, opts), { module })
 
   return mapEvents(op.stream, adaptEvent(pooledProc))
 }
